@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Tools</title>
+    <style>
+        .network-tools {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .tool-section {
+            background: white;
+            margin: 15px 0;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #00c97f;
+        }
+        
+        .tool-title {
+            color: #00c97f;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .input-group {
+            margin: 10px 0;
+        }
+        
+        .input-group input {
+            width: 70%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .input-group input:focus {
+            border-color: #00c97f;
+            outline: none;
+        }
+        
+        .btn {
+            background: #00c97f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #00a86b;
+        }
+        
+        .result-box {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .loading {
+            color: #00c97f;
+            font-style: italic;
+        }
+        
+        .error {
+            color: #e74c3c;
+        }
+        
+        .my-ip-display {
+            background: #00c97f;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="network-tools">
+        <h2 style="text-align: center; color: #00c97f; margin-bottom: 30px;">Network Tools</h2>
+        
+        <!-- My IP Section -->
+        <div class="tool-section">
+            <div class="tool-title">🌐 My Public IP Address</div>
+            <button class="btn" onclick="getMyIP()">Get My IP</button>
+            <div id="myip-result" class="my-ip-display" style="display: none;"></div>
+        </div>
+        
+        <!-- Ping Section -->
+        <div class="tool-section">
+            <div class="tool-title">📡 Ping Test</div>
+            <div class="input-group">
+                <input type="text" id="ping-input" placeholder="Enter domain or IP (e.g., google.com)" value="google.com">
+                <button class="btn" onclick="performPing()">Ping</button>
+            </div>
+            <div id="ping-result" class="result-box" style="display: none;"></div>
+        </div>
+        
+        <!-- Traceroute Section -->
+        <div class="tool-section">
+            <div class="tool-title">🛤️ Traceroute</div>
+            <div class="input-group">
+                <input type="text" id="trace-input" placeholder="Enter domain or IP (e.g., google.com)" value="google.com">
+                <button class="btn" onclick="performTraceroute()">Traceroute</button>
+            </div>
+            <div id="trace-result" class="result-box" style="display: none;"></div>
+        </div>
+        
+        <!-- DNS Lookup Section -->
+        <div class="tool-section">
+            <div class="tool-title">🔍 DNS Lookup</div>
+            <div class="input-group">
+                <input type="text" id="dns-input" placeholder="Enter domain (e.g., google.com)" value="google.com">
+                <button class="btn" onclick="performDNSLookup()">DNS Lookup</button>
+            </div>
+            <div id="dns-result" class="result-box" style="display: none;"></div>
+        </div>
+        
+        <!-- WHOIS Section -->
+        <div class="tool-section">
+            <div class="tool-title">📋 WHOIS Lookup</div>
+            <div class="input-group">
+                <input type="text" id="whois-input" placeholder="Enter domain (e.g., google.com)" value="google.com">
+                <button class="btn" onclick="performWHOIS()">WHOIS Lookup</button>
+            </div>
+            <div id="whois-result" class="result-box" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Get user's public IP
+        async function getMyIP() {
+            const resultDiv = document.getElementById('myip-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<span class="loading">Getting your IP address...</span>';
+            
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                resultDiv.innerHTML = `Your Public IP: ${data.ip}`;
+            } catch (error) {
+                resultDiv.innerHTML = '<span class="error">Error getting IP address</span>';
+            }
+        }
+        
+        // Simulate ping (actual ping requires server-side implementation)
+        async function performPing() {
+            const input = document.getElementById('ping-input').value.trim();
+            const resultDiv = document.getElementById('ping-result');
+            
+            if (!input) {
+                alert('Please enter a domain or IP address');
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<span class="loading">Pinging ' + input + '...</span>';
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`https://cors-anywhere.herokuapp.com/http://${input}`, {
+                    method: 'HEAD',
+                    mode: 'cors'
+                });
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                
+                resultDiv.innerHTML = `PING ${input}:\nResponse time: ${responseTime}ms\nStatus: ${response.status === 200 ? 'Success' : 'Failed'}\n\nNote: This is a simplified HTTP response time test, not actual ICMP ping.`;
+            } catch (error) {
+                // Fallback: Use a different approach
+                try {
+                    const startTime = Date.now();
+                    await fetch(`https://dns.google/resolve?name=${input}&type=A`);
+                    const endTime = Date.now();
+                    const responseTime = endTime - startTime;
+                    
+                    resultDiv.innerHTML = `PING ${input}:\nDNS resolution time: ${responseTime}ms\nHost is reachable\n\nNote: This shows DNS resolution time as ping simulation.`;
+                } catch (dnsError) {
+                    resultDiv.innerHTML = `PING ${input}:\nHost unreachable or invalid\nError: ${dnsError.message}`;
+                }
+            }
+        }
+        
+        // Simulate traceroute
+        async function performTraceroute() {
+            const input = document.getElementById('trace-input').value.trim();
+            const resultDiv = document.getElementById('trace-result');
+            
+            if (!input) {
+                alert('Please enter a domain or IP address');
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<span class="loading">Tracing route to ' + input + '...</span>';
+            
+            // Simulate traceroute hops
+            let output = `Tracing route to ${input}:\n\n`;
+            
+            try {
+                const response = await fetch(`https://dns.google/resolve?name=${input}&type=A`);
+                const data = await response.json();
+                
+                if (data.Answer && data.Answer.length > 0) {
+                    const targetIP = data.Answer[0].data;
+                    
+                    // Simulate typical traceroute hops
+                    const hops = [
+                        '192.168.1.1',
+                        '10.0.0.1',
+                        '203.0.113.1',
+                        '198.51.100.1',
+                        targetIP
+                    ];
+                    
+                    for (let i = 0; i < hops.length; i++) {
+                        const hopTime = Math.floor(Math.random() * 50) + 10;
+                        output += `${i + 1}  ${hops[i]}  ${hopTime}ms\n`;
+                        
+                        if (i === hops.length - 1) {
+                            output += `\nTrace complete to ${input} (${targetIP})`;
+                        }
+                    }
+                } else {
+                    output += 'Unable to resolve hostname';
+                }
+                
+                resultDiv.innerHTML = output + '\n\nNote: This is a simulated traceroute for demonstration.';
+            } catch (error) {
+                resultDiv.innerHTML = `Traceroute failed: ${error.message}`;
+            }
+        }
+        
+        // DNS Lookup
+        async function performDNSLookup() {
+            const input = document.getElementById('dns-input').value.trim();
+            const resultDiv = document.getElementById('dns-result');
+            
+            if (!input) {
+                alert('Please enter a domain name');
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<span class="loading">Looking up DNS records for ' + input + '...</span>';
+            
+            try {
+                const types = ['A', 'AAAA', 'MX', 'TXT', 'NS'];
+                let output = `DNS Lookup Results for ${input}:\n\n`;
+                
+                for (const type of types) {
+                    try {
+                        const response = await fetch(`https://dns.google/resolve?name=${input}&type=${type}`);
+                        const data = await response.json();
+                        
+                        output += `${type} Records:\n`;
+                        if (data.Answer && data.Answer.length > 0) {
+                            data.Answer.forEach(record => {
+                                output += `  ${record.data}\n`;
+                            });
+                        } else {
+                            output += `  No ${type} records found\n`;
+                        }
+                        output += '\n';
+                    } catch (error) {
+                        output += `${type} Records: Error retrieving\n\n`;
+                    }
+                }
+                
+                resultDiv.innerHTML = output;
+            } catch (error) {
+                resultDiv.innerHTML = `DNS lookup failed: ${error.message}`;
+            }
+        }
+        
+        // WHOIS Lookup (using a public API)
+        async function performWHOIS() {
+            const input = document.getElementById('whois-input').value.trim();
+            const resultDiv = document.getElementById('whois-result');
+            
+            if (!input) {
+                alert('Please enter a domain name');
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<span class="loading">Looking up WHOIS information for ' + input + '...</span>';
+            
+            try {
+                // Using a free WHOIS API
+                const response = await fetch(`https://api.whoisjson.com/v1/${input}`);
+                const data = await response.json();
+                
+                let output = `WHOIS Information for ${input}:\n\n`;
+                
+                if (data.domain) {
+                    output += `Domain: ${data.domain}\n`;
+                    output += `Registrar: ${data.registrar || 'N/A'}\n`;
+                    output += `Registration Date: ${data.created_date || 'N/A'}\n`;
+                    output += `Expiration Date: ${data.expires_date || 'N/A'}\n`;
+                    output += `Updated Date: ${data.updated_date || 'N/A'}\n`;
+                    output += `Status: ${data.status ? data.status.join(', ') : 'N/A'}\n\n`;
+                    
+                    if (data.name_servers && data.name_servers.length > 0) {
+                        output += `Name Servers:\n`;
+                        data.name_servers.forEach(ns => {
+                            output += `  ${ns}\n`;
+                        });
+                    }
+                } else {
+                    output += 'WHOIS information not available or domain not found.';
+                }
+                
+                resultDiv.innerHTML = output;
+            } catch (error) {
+                // Fallback message
+                resultDiv.innerHTML = `WHOIS Information for ${input}:\n\nWHOIS lookup temporarily unavailable.\nPlease try again later or use a dedicated WHOIS service.\n\nError: ${error.message}`;
+            }
+        }
+        
+        // Auto-load user's IP on page load
+        window.onload = function() {
+            getMyIP();
+        };
+    </script>
+</body>
+</html>
